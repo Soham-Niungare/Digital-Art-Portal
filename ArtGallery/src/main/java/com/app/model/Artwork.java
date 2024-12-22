@@ -20,6 +20,26 @@ import lombok.*;
 @AllArgsConstructor
 @Table(name = "artworks")
 public class Artwork {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	private String title;
+	private String description;
+	private Double price;
+	private String medium;
+	private String dimensions;
+	
+	@Enumerated(EnumType.STRING)
+	private ArtworkStatus status;
+	
+	@ManyToOne
+	@JoinColumn(name = "artist_id")
+	@JsonBackReference 
+	private Artist artist;
+	
+	@CreationTimestamp
+	private LocalDateTime createdAt;
     public Long getId() {
 		return id;
 	}
@@ -92,24 +112,4 @@ public class Artwork {
 		this.createdAt = createdAt;
 	}
 
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    private String title;
-    private String description;
-    private Double price;
-    private String medium;
-    private String dimensions;
-    
-    @Enumerated(EnumType.STRING)
-    private ArtworkStatus status;
-    
-    @ManyToOne
-    @JoinColumn(name = "artist_id")
-    @JsonBackReference 
-    private Artist artist;
-    
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 }

@@ -62,10 +62,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.app</groupId>
-			<artifactId>Product-Module</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+        </dependency>
+
 		<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>

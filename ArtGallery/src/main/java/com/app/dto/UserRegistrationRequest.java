@@ -13,6 +13,9 @@ public class UserRegistrationRequest {
 
     private String lastName;
     
+    private String role;
+    
+    
     public UserRegistrationRequest(String email, String password, String firstName, String lastName) {
 		super();
 		this.email = email;
@@ -51,6 +54,14 @@ public class UserRegistrationRequest {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 }

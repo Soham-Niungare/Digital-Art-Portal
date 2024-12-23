@@ -43,6 +43,15 @@ public class ArtworkController {
         Artwork artwork = artworkService.getArtworkById(id);
         return new ResponseEntity<>(artwork, HttpStatus.OK);
     }
+    
+    @GetMapping("/search")
+    public ResponseEntity<List<Artwork>> searchArtworks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String medium,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
+        return ResponseEntity.ok(artworkService.searchArtworks(title, medium, minPrice, maxPrice));
+    }
 
     // Get artworks by status
     @GetMapping("/status/{status}")

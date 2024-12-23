@@ -1,6 +1,7 @@
 package com.app.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,34 @@ public class ArtworkService {
         Artist artist = artistRepository.findById(artistId)
             .orElseThrow(() -> new ResourceNotFoundException("Artist not found"));
         return artworkRepository.findByArtist(artist);
+    }
+    
+    public List<Artwork> searchArtworks(String title, String medium, Double minPrice, Double maxPrice) {
+        List<Artwork> artworks = getAllArtworks();
+        
+        return artworks.stream()
+            .filter(artwork -> {
+                boolean matches = true;
+                
+                if (title != null && !title.isEmpty()) {
+                    matches &= artwork.getTitle().toLowerCase().contains(title.toLowerCase());
+                }
+                
+                if (medium != null && !medium.isEmpty()) {
+                    matches &= artwork.getMedium().toLowerCase().contains(medium.toLowerCase());
+                }
+                
+                if (minPrice != null) {
+                    matches &= artwork.getPrice() >= minPrice;
+                }
+                
+                if (maxPrice != null) {
+                    matches &= artwork.getPrice() <= maxPrice;
+                }
+                
+                return matches;
+            })
+            .collect(Collectors.toList());
     }
 
     // Update Methods

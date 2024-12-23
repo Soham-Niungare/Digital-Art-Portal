@@ -6,6 +6,7 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.app.model.Artist;
+import com.app.model.Artwork;
 import com.app.model.User;
 import com.app.repository.ArtistRepository;
 import com.app.repository.UserRepository;
@@ -23,10 +24,7 @@ public class ArtistService {
         this.userRepository = userRepository;
     }
 
-    public Artist createArtist(Artist artist, Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        artist.setUser(user);
+    public Artist createArtist(Artist artist) {
         return artistRepository.save(artist);
     }
 
@@ -51,5 +49,10 @@ public class ArtistService {
     public void deleteArtist(Long id) {
         Artist artist = getArtistById(id);
         artistRepository.delete(artist);
+    }
+    
+    public List<Artwork> getArtworksByArtist(Long artistId) {
+        Artist artist = getArtistById(artistId);
+        return artist.getArtworks();
     }
 }

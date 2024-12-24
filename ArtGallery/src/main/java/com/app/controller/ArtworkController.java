@@ -1,11 +1,17 @@
 package com.app.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.security.core.Authentication;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.app.model.Artwork;
 import com.app.model.enums.ArtworkStatus;
@@ -72,9 +78,10 @@ public class ArtworkController {
     // Update artwork
     @PutMapping("/{id}")
     public ResponseEntity<Artwork> updateArtwork(@PathVariable Long id, 
-                                               @RequestBody Artwork artworkDetails) {
-        Artwork updatedArtwork = artworkService.updateArtwork(id, artworkDetails);
-        return new ResponseEntity<>(updatedArtwork, HttpStatus.OK);
+            @RequestBody Artwork artwork,
+            Authentication authentication) {
+    	UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    	return ResponseEntity.ok(artworkService.updateArtwork(id, artwork, userDetails.getUsername()));
     }
 
     // Update artwork status
@@ -88,11 +95,29 @@ public class ArtworkController {
 
     // Delete artwork
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteArtwork(@PathVariable Long id) {
-        artworkService.deleteArtwork(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> deleteArtwork(@PathVariable Long id,
+            Authentication authentication) {
+    	UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    	artworkService.deleteArtwork(id, userDetails.getUsername());
+    	return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/{id}/image")
+    public ResponseEntity<Map<String, String>> getArtworkImage(@PathVariable Long id) {
+        Artwork artwork = artworkService.getArtworkById(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("imageUrl", artwork.getImageUrl());
+        return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{id}/image")
+    public ResponseEntity<String> uploadImage(@PathVariable Long id,
+                                            @RequestParam("file") MultipartFile file,
+                                            Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String imageUrl = artworkService.uploadImage(id, file, userDetails.getUsername());
+        return ResponseEntity.ok(imageUrl);
+    }
     // Status-specific endpoints
     @GetMapping("/available")
     public ResponseEntity<List<Artwork>> getAvailableArtworks() {

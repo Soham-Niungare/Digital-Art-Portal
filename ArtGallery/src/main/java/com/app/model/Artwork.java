@@ -43,6 +43,8 @@ public class Artwork {
     public Long getId() {
 		return id;
 	}
+    
+    private String imageUrl;
 
 	public void setId(Long id) {
 		this.id = id;
@@ -110,6 +112,14 @@ public class Artwork {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 }

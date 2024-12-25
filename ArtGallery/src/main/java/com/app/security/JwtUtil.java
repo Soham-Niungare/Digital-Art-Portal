@@ -7,23 +7,33 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
-    
-    @Value("${jwt.secret}")
-    private String secret;
-    
+
+    private Key dynamicSecretKey;
+
     @Value("${jwt.expiration}")
     private Long expiration;
+
+    @jakarta.annotation.PostConstruct
+    public void initializeSecretKey() {
+        dynamicSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Generate a random secret key
+    }
+
+    @Scheduled(fixedRate = 24 * 60 * 60 * 1000) // Refresh the key every 24 hours
+    public void refreshSecretKey() {
+        dynamicSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        System.out.println("Secret key refreshed!");
+    }
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
@@ -41,8 +51,7 @@ public class JwtUtil {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return dynamicSecretKey;
     }
 
     public String extractUsername(String token) {

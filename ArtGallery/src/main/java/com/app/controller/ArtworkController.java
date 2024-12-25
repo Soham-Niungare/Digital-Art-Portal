@@ -3,10 +3,14 @@ package com.app.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,6 +63,15 @@ public class ArtworkController {
         return ResponseEntity.ok(artworkService.searchArtworks(title, medium, minPrice, maxPrice));
     }
 
+    @GetMapping("/advanced-search")
+    public ResponseEntity<Page<Artwork>> advancedSearch(
+        @RequestParam(required = false) String query,
+        @RequestParam(required = false) List<Long> categories,
+        @RequestParam(required = false) List<String> tags,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(artworkService.searchArtworks(query, categories, tags, PageRequest.of(page, size)));
+    }
     // Get artworks by status
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Artwork>> getArtworksByStatus(
@@ -118,6 +131,26 @@ public class ArtworkController {
         String imageUrl = artworkService.uploadImage(id, file, userDetails.getUsername());
         return ResponseEntity.ok(imageUrl);
     }
+    
+    @PutMapping("/{id}/categories")
+    @PreAuthorize("@artworkSecurityService.isOwner(#id, principal)")
+    public Artwork updateCategories(
+        @PathVariable Long id,
+        @RequestBody Set<Long> categoryIds
+    ) {
+        return artworkService.updateCategories(id, categoryIds);
+    }
+    
+    @PutMapping("/{id}/tags")
+    @PreAuthorize("@artworkSecurityService.isOwner(#id, principal)")
+    public Artwork updateTags(
+        @PathVariable Long id,
+        @RequestBody Set<String> tagNames
+    ) {
+        return artworkService.updateTags(id, tagNames);
+    }
+    
+    
     // Status-specific endpoints
     @GetMapping("/available")
     public ResponseEntity<List<Artwork>> getAvailableArtworks() {

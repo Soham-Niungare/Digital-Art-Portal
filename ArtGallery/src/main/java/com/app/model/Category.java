@@ -3,6 +3,8 @@ package com.app.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -19,6 +21,7 @@ public class Category {
     private String description;
     
     @ManyToMany(mappedBy = "categories")
+    @JsonManagedReference // Prevent infinite recursion
     private Set<Artwork> artworks = new HashSet<>();
 
 

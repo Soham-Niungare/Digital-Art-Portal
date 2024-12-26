@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.app.dto.UserRegistrationRequest;
+import com.app.model.Artwork;
 import com.app.model.User;
 import com.app.model.enums.Role;
 import com.app.repository.UserRepository;
@@ -35,5 +36,15 @@ public class UserService {
         user.setRole(Role.valueOf(registrationDto.getRole()));
 
         return userRepository.save(user);
+    }
+    
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+    
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

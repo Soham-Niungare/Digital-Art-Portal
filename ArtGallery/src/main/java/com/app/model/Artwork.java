@@ -56,6 +56,7 @@ public class Artwork {
         joinColumns = @JoinColumn(name = "artwork_id"),
         inverseJoinColumns = @JoinColumn(name = "category_id")
     )
+    @JsonBackReference // Prevent infinite recursion
     private Set<Category> categories = new HashSet<>();
     
     @ManyToMany

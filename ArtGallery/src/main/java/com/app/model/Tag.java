@@ -4,6 +4,8 @@ package com.app.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -16,12 +18,16 @@ public class Tag {
     @Column(nullable = false, unique = true)
     private String name;
     
+    @JsonIgnore
     @ManyToMany(mappedBy = "tags")
     private Set<Artwork> artworks = new HashSet<>();
 
 
+    
+    public Tag() {
+    }
+    
 	public Tag(String name) {
-		super();
 		this.name = name;
 	}
 

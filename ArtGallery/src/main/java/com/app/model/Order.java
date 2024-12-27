@@ -39,10 +39,16 @@ public class Order {
     
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+    
+    @CreationTimestamp
+    @Column(name = "order_date", nullable = false, updatable = false)
+    private LocalDateTime orderDate;
 
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     private String shippingAddress;
@@ -50,6 +56,13 @@ public class Order {
     private String paymentMethod;
     private String trackingNumber;
 
+    @PrePersist
+    protected void onCreate() {
+        orderDate = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+    
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();

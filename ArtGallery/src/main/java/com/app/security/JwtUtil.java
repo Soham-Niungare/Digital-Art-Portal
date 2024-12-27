@@ -37,6 +37,11 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        // Add authorities to claims
+        claims.put("role", userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(authority -> authority.getAuthority())
+                .orElse(""));
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -50,6 +55,11 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String extractRole(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("role", String.class);
+    }
+    
     private Key getSignKey() {
         return dynamicSecretKey;
     }
@@ -81,6 +91,10 @@ public class JwtUtil {
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String tokenRole = extractRole(token);
+        return (username.equals(userDetails.getUsername()) && 
+                !isTokenExpired(token) && 
+                userDetails.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals(tokenRole)));
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -20,6 +21,7 @@ import com.app.model.Order;
 import com.app.model.User;
 import com.app.model.enums.ArtworkStatus;
 import com.app.model.enums.OrderStatus;
+import com.app.model.enums.Role;
 import com.app.repository.ArtistRepository;
 import com.app.repository.OrderRepository;
 
@@ -27,9 +29,16 @@ import com.app.repository.OrderRepository;
 @Transactional
 @RequiredArgsConstructor
 public class OrderService {
+    @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired
     private ArtworkService artworkService;
+    
+    @Autowired
     private UserService userService;
+    
+    @Autowired
     private ArtistRepository artistRepository;
 
     public Order createOrder(Long userId, Long artworkId, String shippingAddress) {
@@ -109,21 +118,22 @@ public class OrderService {
     public Order getOrderWithAccessCheck(Long orderId, String userEmail) {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
-            
+
         User user = userService.getUserByEmail(userEmail);
         
-        if (user.getRole().name().equals("ROLE_ADMIN")) {
+        if (user.getRole() == Role.ADMIN) {
             return order;
         }
-        
-        if (order.getBuyer().getId().equals(user.getId()) || 
-            (order.getArtist().getUser() != null && order.getArtist().getUser().getId().equals(user.getId()))) {
+
+        if (order.getBuyer().getId().equals(user.getId()) ||
+            (order.getArtist() != null && 
+             order.getArtist().getUser() != null && 
+             order.getArtist().getUser().getId().equals(user.getId()))) {
             return order;
         }
-        
+
         throw new ForbiddenException("You don't have permission to view this order");
     }
-
     public Order updateOrderStatus(Long orderId, OrderStatus newStatus, String userEmail) {
         Order order = getOrderWithAccessCheck(orderId, userEmail);
         

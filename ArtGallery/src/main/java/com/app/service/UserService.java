@@ -1,6 +1,7 @@
 package com.app.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -21,6 +22,8 @@ public class UserService {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+
 
     public User registerNewUser(UserRegistrationRequest registrationDto) {
         // Check if user already exists

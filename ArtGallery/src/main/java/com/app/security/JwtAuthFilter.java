@@ -1,6 +1,7 @@
 package com.app.security;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -43,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             logger.debug("Extracted token: {}" + token); 
             try {
                 username = jwtUtil.extractUsername(token);
-                logger.debug("Extracted username: {}"+ username); // Add this
+                logger.debug("Role from token: " + jwtUtil.extractRole(token)); // Add this
             } catch (Exception e) {
                 logger.error("Error processing token: ", e); // Add this
             }
@@ -53,8 +55,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             
             if (jwtUtil.validateToken(token, userDetails)) {
+                String role = jwtUtil.extractRole(token);
                 UsernamePasswordAuthenticationToken authToken = 
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails, 
+                        null,
+                        Collections.singleton(new SimpleGrantedAuthority(role))
+                    );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

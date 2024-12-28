@@ -161,7 +161,8 @@ public class OrderService {
     }
 
     public Page<Order> getArtistSales(Long userId, Pageable pageable) {
-        Artist artist = artistRepository.findById(userId)
+        User user = userService.getUserById(userId);
+        Artist artist = artistRepository.findByUser(user)
             .orElseThrow(() -> new ResourceNotFoundException("Artist not found"));
         return orderRepository.findByArtist(artist, pageable);
     }

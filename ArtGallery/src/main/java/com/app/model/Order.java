@@ -52,9 +52,7 @@ public class Order {
     private LocalDateTime updatedAt;
 
     private String shippingAddress;
-    private String billingAddress;
     private String paymentMethod;
-    private String trackingNumber;
 
     @PrePersist
     protected void onCreate() {
@@ -140,13 +138,6 @@ public class Order {
 		this.shippingAddress = shippingAddress;
 	}
 
-	public String getBillingAddress() {
-		return billingAddress;
-	}
-
-	public void setBillingAddress(String billingAddress) {
-		this.billingAddress = billingAddress;
-	}
 
 	public String getPaymentMethod() {
 		return paymentMethod;
@@ -156,15 +147,6 @@ public class Order {
 		this.paymentMethod = paymentMethod;
 	}
 
-	public String getTrackingNumber() {
-		return trackingNumber;
-	}
-
-	public void setTrackingNumber(String trackingNumber) {
-		this.trackingNumber = trackingNumber;
-	}
-    
-    
     
     
 }

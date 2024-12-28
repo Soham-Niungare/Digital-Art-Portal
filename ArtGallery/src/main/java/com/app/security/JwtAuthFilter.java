@@ -3,6 +3,8 @@ package com.app.security;
 import java.io.IOException;
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,8 @@ import jakarta.servlet.FilterChain;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
+	
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -45,7 +49,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             logger.debug("Extracted token: {}" + token); 
             try {
                 username = jwtUtil.extractUsername(token);
-                logger.debug("Role from token: " + jwtUtil.extractRole(token)); // Add this
+                logger.info("Processing token for username: {}", username);
+                String role = jwtUtil.extractRole(token);
+                logger.info("Extracted role from token: {}", role);
             } catch (Exception e) {
                 logger.error("Error processing token: ", e); // Add this
             }
@@ -53,6 +59,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            logger.info("Loaded user details. Authorities: {}", userDetails.getAuthorities());
+            
             
             if (jwtUtil.validateToken(token, userDetails)) {
                 String role = jwtUtil.extractRole(token);
@@ -64,6 +72,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                logger.info("Successfully authenticated user: {} with role: {}", username, role);
             }
         }
         filterChain.doFilter(request, response);

@@ -33,7 +33,7 @@ public class CategoryController {
     }
     
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Category createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
         return categoryService.create(categoryDTO);
     }

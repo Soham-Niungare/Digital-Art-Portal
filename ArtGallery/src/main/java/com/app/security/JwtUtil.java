@@ -6,8 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +21,7 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     private Key dynamicSecretKey;
 
@@ -38,10 +42,13 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         // Add authorities to claims
-        claims.put("role", userDetails.getAuthorities().stream()
+        String role = userDetails.getAuthorities().stream()
                 .findFirst()
-                .map(authority -> authority.getAuthority())
-                .orElse(""));
+                .map(GrantedAuthority::getAuthority)
+                .orElse("");
+                
+        logger.info("Generating token for user: {} with role: {}", userDetails.getUsername(), role);
+        claims.put("role", role);
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -57,7 +64,9 @@ public class JwtUtil {
 
     public String extractRole(String token) {
         Claims claims = extractAllClaims(token);
-        return claims.get("role", String.class);
+        String role = claims.get("role", String.class);
+        logger.info("Extracted role from token: {}", role);
+        return role;
     }
     
     private Key getSignKey() {
@@ -92,9 +101,12 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         final String tokenRole = extractRole(token);
-        return (username.equals(userDetails.getUsername()) && 
+        boolean isValid = username.equals(userDetails.getUsername()) && 
                 !isTokenExpired(token) && 
                 userDetails.getAuthorities().stream()
-                    .anyMatch(auth -> auth.getAuthority().equals(tokenRole)));
+                    .anyMatch(auth -> auth.getAuthority().equals(tokenRole));
+                    
+        logger.info("Token validation for user: {}, role: {}, isValid: {}", username, tokenRole, isValid);
+        return isValid;
     }
 }

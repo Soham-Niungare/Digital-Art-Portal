@@ -33,6 +33,8 @@ public class User implements UserDetails {
 	@Column(unique = true)
 	private String email;
 	
+    private String profilePicture;
+	
 	private String password;
 	private String firstName;
 	private String lastName;
@@ -138,5 +140,15 @@ public class User implements UserDetails {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+
+	public String getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(String profilePicture) {
+		this.profilePicture = profilePicture;
+	}
+
+
 
 }

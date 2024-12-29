@@ -1,16 +1,31 @@
 package com.app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Sort;
+
+
+import com.app.dto.UpdateProfileRequest;
+import com.app.dto.UserProfileDTO;
 import com.app.dto.UserRegistrationRequest;
 import com.app.model.User;
 import com.app.model.Artist;
 import com.app.service.UserService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 import com.app.service.ArtistService;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
     @Autowired
     private UserService userService;
@@ -33,4 +48,20 @@ public class UserController {
         
         return ResponseEntity.ok("User registered successfully");
     }
+    
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileDTO> getCurrentUserProfile(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        UserProfileDTO profile = userService.getCurrentUserProfile(userDetails.getUsername());
+        return ResponseEntity.ok(profile);
+    }
+    
+    @PutMapping("/profile")
+    public ResponseEntity<UserProfileDTO> updateProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        UserProfileDTO updatedProfile = userService.updateProfile(userDetails.getUsername(), request);
+        return ResponseEntity.ok(updatedProfile);
+    }
+    
 }

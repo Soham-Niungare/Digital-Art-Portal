@@ -1,5 +1,8 @@
 package com.app.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Sort;
 
 
@@ -62,6 +66,23 @@ public class UserController {
             @Valid @RequestBody UpdateProfileRequest request) {
         UserProfileDTO updatedProfile = userService.updateProfile(userDetails.getUsername(), request);
         return ResponseEntity.ok(updatedProfile);
+    }
+    
+    @PostMapping("/profile/image")
+    public ResponseEntity<String> uploadProfileImage(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String imageUrl = userService.uploadProfileImage(userDetails.getUsername(), file);
+        return ResponseEntity.ok(imageUrl);
+    }
+
+    @GetMapping("/profile/image")
+    public ResponseEntity<Map<String, String>> getProfileImage(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        UserProfileDTO profile = userService.getCurrentUserProfile(userDetails.getUsername());
+        Map<String, String> response = new HashMap<>();
+        response.put("imageUrl", profile.getProfilePicture());
+        return ResponseEntity.ok(response);
     }
     
 }

@@ -42,6 +42,32 @@ public class ImageUtils {
             throw new IllegalArgumentException("Invalid image file");
         }
     }
+//     Add new method for profile image validation
+    public static void validateProfileImage(MultipartFile file) {
+        // Check file size
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("Profile picture size exceeds 5MB limit");
+        }
+        
+        // Check file extension
+        String extension = getFileExtension(file.getOriginalFilename());
+        if (!ALLOWED_EXTENSIONS.contains(extension.toLowerCase())) {
+            throw new IllegalArgumentException("Only JPG, JPEG, PNG files are allowed");
+        }
+        
+        // Check dimensions
+        try {
+            BufferedImage img = ImageIO.read(file.getInputStream());
+            if (img.getWidth() < MIN_WIDTH || img.getWidth() > MAX_WIDTH ||
+                img.getHeight() < MIN_HEIGHT || img.getHeight() > MAX_HEIGHT) {
+                throw new IllegalArgumentException(
+                    "Profile picture dimensions must be between " + MIN_WIDTH + "x" + MIN_HEIGHT + 
+                    " and " + MAX_WIDTH + "x" + MAX_HEIGHT + " pixels");
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid image file");
+        }
+    }
 
     private static String getFileExtension(String filename) {
         return filename.substring(filename.lastIndexOf(".") + 1);

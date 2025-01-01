@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class OrderController {
     @Autowired
     private OrderService orderService;

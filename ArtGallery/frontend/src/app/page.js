@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 export default function HomePage() {
   const auth = useSelector((state) => state.auth);
+  console.log('Dashboard Auth State:', useSelector(state => state.auth))
 
   return (
     <div className="min-h-screen p-4">

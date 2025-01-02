@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
@@ -8,13 +9,22 @@ export default function LoginPage() {
     email: '',
     password: ''
   });
-  const { login, loading, error } = useAuth();
+  const { login, loading, error, isAuthenticated } = useAuth();  // Accessing isAuthenticated
+  const router = useRouter();
+
+  // Redirect to the appropriate dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      // If user is authenticated, redirect them (Handled by another logic file)
+      router.replace('/dashboard'); // The exact redirection logic can be handled by your routing logic elsewhere
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Attempting login with:', formData);
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password); // Proceed with login
     } catch (err) {
       console.error('Login error:', err);
     }
@@ -22,9 +32,9 @@ export default function LoginPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 

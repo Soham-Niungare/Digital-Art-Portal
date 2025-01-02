@@ -12,8 +12,23 @@ export const useAuth = () => {
     try {
       dispatch(loginStart());
       const data = await authService.login(email, password);
+
+      // Add debugging logs
+      console.log('Login response:', data);
+      console.log('User role:', data.user.role);
       dispatch(loginSuccess({ user: data.user, token: data.token }));
-      router.push('/dashboard');
+      
+      // Navigate based on role
+      const role = data.user.role?.toLowerCase();
+      console.log('Normalized role for routing:', role);
+      if (role) {
+        router.replace(`/dashboard/${role}`);
+      } else {
+        console.error('User role not found, redirecting to login.');
+        router.replace('/auth/login');
+      }
+    // Hard refresh to ensure middleware is triggered
+    window.location.href = `/dashboard/${role}`;
     } catch (error) {
       dispatch(loginFailure(error.response?.data?.message || 'Login failed'));
     }
@@ -35,7 +50,7 @@ export const useAuth = () => {
   const logoutUser = () => {
     authService.logout();
     dispatch(logout());
-    router.push('/');
+    router.push('/auth/login');
   };
 
   return {

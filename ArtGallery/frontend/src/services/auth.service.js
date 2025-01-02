@@ -1,4 +1,6 @@
 import axios from './axios';
+import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -9,10 +11,30 @@ const authService = {
       password
     });
     if (response.data.token) {
-      // Store token in localStorage or cookies
+      const token = response.data.token;
+      // console.log("API Response:", response.data.token);
+      // Decode token to get user info
+      const decodedToken = jwtDecode(token);
+
+      // Set cookie for both client and server
+      Cookies.set('token', token, { 
+        path: '/',
+        expires: new Date(decodedToken.exp * 1000),
+          secure: true,
+          sameSite: 'Strict'
+      });
+      // Extract user info from decoded token
       localStorage.setItem('token', response.data.token);
-      // Set default auth header for future requests
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
+
+      return {
+        token,
+        user: {
+          email: decodedToken.sub,
+          role: decodedToken.role
+        }
+      };
     }
     return response.data;
   },
@@ -28,6 +50,7 @@ const authService = {
   },
 
   logout() {
+    Cookies.remove('token', { path: '/' });
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
   }

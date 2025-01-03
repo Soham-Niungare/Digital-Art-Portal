@@ -1,10 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
+import galleryReducer from './slices/gallerySlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    // Add other reducers here as needed
+    gallery: galleryReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

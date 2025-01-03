@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -48,7 +49,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors().and()  // Enable CORS for all endpoints
             .authorizeHttpRequests(auth -> auth
-            	.requestMatchers("/api/artworks").permitAll()
+            	.requestMatchers(HttpMethod.GET,"/api/artworks/**").permitAll()
+            	.requestMatchers(HttpMethod.GET,"/images/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/users/register").permitAll()
                 .anyRequest().authenticated()

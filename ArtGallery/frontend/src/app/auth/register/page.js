@@ -15,7 +15,7 @@ export default function RegisterForm() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    role: 'USER',
+    role: 'CUSTOMER',
   });
 
   const [errors, setErrors] = useState({});
@@ -80,6 +80,38 @@ export default function RegisterForm() {
             </div>
           )}
           <div className="rounded-md shadow-sm -space-y-px">
+          <div>
+              <label htmlFor="firstName" className="sr-only">
+                First Name
+              </label>
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+              />
+              {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
+            </div>
+            <div>
+              <label htmlFor="lastName" className="sr-only">
+                Last Name
+              </label>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+              />
+              {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
+            </div>
             <div>
               <label htmlFor="email" className="sr-only">
                 Email
@@ -130,38 +162,7 @@ export default function RegisterForm() {
                 <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
               )}
             </div>
-            <div>
-              <label htmlFor="firstName" className="sr-only">
-                First Name
-              </label>
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-              {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
-            </div>
-            <div>
-              <label htmlFor="lastName" className="sr-only">
-                Last Name
-              </label>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-              {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
-            </div>
+
           </div>
           <div>
             <label htmlFor="role" className="sr-only">
@@ -174,7 +175,7 @@ export default function RegisterForm() {
               value={formData.role}
               onChange={handleChange}
             >
-              <option value="USER">User</option>
+              <option value="CUSTOMER">User</option>
               <option value="ARTIST">Artist</option>
             </select>
           </div>

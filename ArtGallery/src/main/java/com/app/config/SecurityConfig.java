@@ -1,5 +1,7 @@
 package com.app.config;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,10 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
 import com.app.security.JwtAuthFilter;
 import com.app.service.CustomUserDetailsService;
 
@@ -40,6 +46,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors().and()  // Enable CORS for all endpoints
             .authorizeHttpRequests(auth -> auth
             	.requestMatchers("/api/artworks").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
@@ -55,6 +62,21 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public CorsFilter corsFilter() {
+        // CORS configuration to allow frontend requests
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOrigins(List.of("http://localhost:3000"));  // Add your frontend domain
+        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        corsConfig.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+        return new CorsFilter(source);
+    }
+
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();

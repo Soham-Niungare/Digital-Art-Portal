@@ -1,10 +1,14 @@
 package com.app.service;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,6 +67,14 @@ public class OrderService {
 
         return orderRepository.save(order);
     }
+    
+    public List<String> getAllAddressesForUser(Long userId) {
+        List<Order> orders = orderRepository.findByBuyerId(userId);
+        return orders.stream()
+                     .map(Order::getShippingAddress)  // Extracting address from each order
+                     .collect(Collectors.toList());
+    }
+    
     
     private boolean isValidStatusTransition(OrderStatus current, OrderStatus next) {
         Map<OrderStatus, Set<OrderStatus>> validTransitions = new HashMap<>();

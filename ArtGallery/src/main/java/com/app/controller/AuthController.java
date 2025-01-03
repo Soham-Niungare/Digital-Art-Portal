@@ -20,7 +20,7 @@ import com.app.service.CustomUserDetailsService;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "Authorization")
 public class AuthController {
 
     @Autowired

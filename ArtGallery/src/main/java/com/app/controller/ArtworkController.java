@@ -23,7 +23,7 @@ import com.app.service.ArtworkService;
 
 @RestController
 @RequestMapping("/api/artworks")
-@CrossOrigin(origins = "http://localhost:3000")  // For React frontend
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "Authorization")  // For React frontend
 public class ArtworkController {
     private final ArtworkService artworkService;
 

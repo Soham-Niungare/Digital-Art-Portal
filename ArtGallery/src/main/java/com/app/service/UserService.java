@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.app.dto.UpdateProfileRequest;
 import com.app.dto.UserProfileDTO;
 import com.app.dto.UserRegistrationRequest;
+import com.app.model.Artist;
 import com.app.model.Artwork;
 import com.app.model.User;
 import com.app.model.enums.Role;
@@ -47,6 +48,10 @@ public class UserService {
     private String profileImageDirectory;
     
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+    
     public User registerNewUser(UserRegistrationRequest registrationDto) {
         // Check if user already exists
         if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {

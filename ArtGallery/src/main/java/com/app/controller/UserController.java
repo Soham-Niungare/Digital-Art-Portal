@@ -1,6 +1,7 @@
 package com.app.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import com.app.service.ArtistService;
+import com.app.service.OrderService;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "Authorization")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -38,6 +40,14 @@ public class UserController {
     @Autowired
     private ArtistService artistService;
 
+    @Autowired
+    private OrderService orderService;
+    
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+    
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequest registrationDto) {
         User user = userService.registerNewUser(registrationDto);
@@ -54,12 +64,20 @@ public class UserController {
         return ResponseEntity.ok("User registered successfully");
     }
     
+
+    @GetMapping("/{userId}/addresses")
+    public ResponseEntity<List<String>> getAllOrderAddresses(@PathVariable Long userId) {
+        List<String> addresses = orderService.getAllAddressesForUser(userId);
+        return ResponseEntity.ok(addresses);
+    }
+    
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile(
             @AuthenticationPrincipal UserDetails userDetails) {
         UserProfileDTO profile = userService.getCurrentUserProfile(userDetails.getUsername());
         return ResponseEntity.ok(profile);
     }
+    
     
     @PutMapping("/profile")
     public ResponseEntity<UserProfileDTO> updateProfile(

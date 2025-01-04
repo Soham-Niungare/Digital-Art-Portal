@@ -44,16 +44,34 @@ const authService = {
     return response.data;
   },
 
+  getStoredToken() {
+    // Check cookies first
+    const tokenFromCookies = Cookies.get('token');
+    if (tokenFromCookies) {
+      return tokenFromCookies;
+    }
+  
+    // Fallback to localStorage
+    const tokenFromLocalStorage = localStorage.getItem('token');
+    if (tokenFromLocalStorage) {
+      return tokenFromLocalStorage;
+    }
+  
+    return null; // Return null if no token is found
+  },
+
   async getCurrentUser() {
     const response = await axios.get(`${API_URL}/api/users/profile`);
     return response.data;
   },
+
 
   logout() {
     Cookies.remove('token', { path: '/' });
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
   }
+
 };
 
 export const register = async (userData) => {

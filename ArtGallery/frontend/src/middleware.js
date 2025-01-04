@@ -17,7 +17,7 @@ export function middleware(request) {
         if (!role) {
           return NextResponse.redirect(new URL('/auth/login', request.url));
         }
-        return NextResponse.redirect(new URL(`/dashboard/${role}`, request.url));
+        return NextResponse.redirect(new URL(`/dashboard/${user?.role}`, request.url));
       } catch {
         return NextResponse.next();
       }

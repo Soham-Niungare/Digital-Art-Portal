@@ -41,7 +41,7 @@ export const useAuth = () => {
       // After registration, log them in automatically
       const loginData = await authService.login(userData.email, userData.password);
       dispatch(loginSuccess({ user: loginData.user, token: loginData.token }));
-      router.push('/dashboard');
+      router.push(`/dashboard/${user?.role}`);
     } catch (error) {
       dispatch(loginFailure(error.response?.data?.message || 'Registration failed'));
     }

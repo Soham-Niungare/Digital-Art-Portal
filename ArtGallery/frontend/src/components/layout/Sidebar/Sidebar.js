@@ -14,14 +14,12 @@ export default function Sidebar() {
     switch (user?.role) {
       case 'ADMIN':
         return [
-          { text: 'Dashboard', href: '/dashboard' },
           { text: 'Manage Users', href: '/dashboard/users' },
           { text: 'Manage Orders', href: '/dashboard/orders' },
           { text: 'Categories', href: '/dashboard/categories' }
         ];
       case 'ARTIST':
         return [
-          { text: 'Dashboard', href: '/dashboard' },
           { text: 'My Artworks', href: '/dashboard/artworks' },
           { text: 'Orders', href: '/dashboard/orders' },
           { text: 'Profile', href: '/dashboard/profile' }

@@ -49,7 +49,7 @@ export default function RegisterForm() {
     setIsLoading(true);
     try {
       await dispatch(registerUser(formData)).unwrap();
-      router.push('/dashboard');
+      router.push(`/dashboard/${user?.role}`);
     } catch (error) {
       setErrors({ submit: error.message || 'Registration failed' });
     } finally {

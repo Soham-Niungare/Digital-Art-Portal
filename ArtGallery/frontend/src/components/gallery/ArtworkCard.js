@@ -18,7 +18,7 @@ export default function ArtworkCard({ artwork }) {
         />
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-semibold mb-2">{artwork.title}</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">{artwork.title}</h3>
         <p className="text-gray-600 text-sm mb-2">{artwork.medium}</p>
         <p className="text-gray-800 font-bold">${artwork.price.toFixed(2)}</p>
         <div className="flex flex-wrap gap-1 mt-2">

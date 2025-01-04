@@ -2,26 +2,26 @@ import PropTypes from 'prop-types';
 
 const Card = ({ children, className }) => {
   return (
-    <div className={`border rounded-lg shadow-md bg-white ${className}`}>
+    <div className={`border rounded-lg shadow-md bg-white text-gray-900 ${className}`}>
       {children}
     </div>
   );
 };
 
 const CardHeader = ({ children, className }) => {
-  return <div className={`p-4 border-b ${className}`}>{children}</div>;
+  return <div className={`p-4 border-b bg-gray-100 text-gray-800 ${className}`}>{children}</div>;
 };
 
 const CardContent = ({ children, className }) => {
-  return <div className={`p-4 ${className}`}>{children}</div>;
+  return <div className={`p-4 text-gray-900 ${className}`}>{children}</div>;
 };
 
 const CardFooter = ({ children, className }) => {
-  return <div className={`p-4 border-t ${className}`}>{children}</div>;
+  return <div className={`p-4 border-t bg-gray-100 text-gray-800 ${className}`}>{children}</div>;
 };
 
 const CardTitle = ({ children, className }) => {
-  return <h2 className={`text-lg font-bold ${className}`}>{children}</h2>;
+  return <h2 className={`text-lg font-bold text-gray-900 ${className}`}>{children}</h2>;
 };
 
 Card.propTypes = {

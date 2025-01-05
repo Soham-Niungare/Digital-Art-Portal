@@ -116,6 +116,30 @@ const CustomerDashboard = () => {
           </CardContent>
         </Card>
 
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Shipping Addresses</CardTitle>
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{dashboardData.addresses.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Account Status</CardTitle>
+            <User className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Active</div>
+            <p className="text-xs text-muted-foreground">{dashboardData.profile.role}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+
         {/* Orders Section */}
         <Card>
           <CardHeader>
@@ -150,76 +174,6 @@ const CustomerDashboard = () => {
             </Tabs>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Shipping Addresses</CardTitle>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.addresses.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Account Status</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Active</div>
-            <p className="text-xs text-muted-foreground">{dashboardData.profile.role}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Order History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {dashboardData.orders.content.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No orders placed yet. Start shopping to see your order history!
-            </div>
-          ) : (
-            <div className="relative overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs uppercase bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3">Order ID</th>
-                    <th className="px-6 py-3">Total</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Order Date</th>
-                    <th className="px-6 py-3">Shipping Address</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dashboardData.orders.content.map((order) => (
-                    <tr key={order.id} className="bg-white border-b">
-                      <td className="px-6 py-4">#{order.id}</td>
-                      <td className="px-6 py-4">${order.totalAmount.toFixed(2)}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          order.status === 'DELIVERED' 
-                            ? 'bg-green-100 text-green-800' 
-                            : order.status === 'PENDING'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">{new Date(order.orderDate).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 truncate max-w-xs">{order.shippingAddress}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>

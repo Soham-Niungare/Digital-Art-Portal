@@ -1,11 +1,75 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import  {Card , CardContent, CardHeader, CardTitle }  from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, ShoppingCart, FolderOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import authService from '@/services/auth.service';
 import { adminDashboardService } from '@/services/dashboard.service';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const OrderStatus = ({ status, onStatusChange, orderId }) => {
+  const statusColors = {
+    'PENDING': 'bg-yellow-100 text-yellow-800',
+    'CONFIRMED': 'bg-blue-100 text-blue-800',
+    'PAID': 'bg-green-100 text-green-800',
+    'SHIPPED': 'bg-purple-100 text-purple-800',
+    'DELIVERED': 'bg-green-200 text-green-900',
+    'CANCELLED': 'bg-red-100 text-red-800'
+  };
+
+  const allowedTransitions = {
+    'PENDING': ['CONFIRMED', 'CANCELLED'],
+    'CONFIRMED': ['PAID', 'CANCELLED'],
+    'PAID': ['SHIPPED'],
+    'SHIPPED': ['DELIVERED'],
+    'DELIVERED': [],
+    'CANCELLED': []
+  };
+
+  return (
+    <Select
+      onValueChange={(newStatus) => onStatusChange(orderId, newStatus)}
+      defaultValue={status}
+      disabled={!allowedTransitions[status]?.length}
+    >
+      {({ isOpen, setIsOpen, value, handleSelect, disabled }) => (
+        <>
+          <SelectTrigger
+            className={`w-[140px] ${statusColors[status]}`}
+            onClick={() => setIsOpen(!isOpen)}
+            disabled={disabled}
+          >
+            <SelectValue value={value} placeholder={status} />
+          </SelectTrigger>
+          <SelectContent isOpen={isOpen}>
+            {allowedTransitions[status]?.map((newStatus) => (
+              <SelectItem
+                key={newStatus}
+                value={newStatus}
+                onSelect={handleSelect}
+              >
+                {newStatus}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </>
+      )}
+    </Select>
+  );
+};
 
 const AdminDashboard = () => {
   const router = useRouter();
@@ -18,27 +82,49 @@ const AdminDashboard = () => {
     },
     categories: []
   });
+
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [users, orders, categories] = await Promise.all([
-          adminDashboardService.getAllUsers(),
-          adminDashboardService.getAllOrders(),
-          adminDashboardService.getCategories()
-        ]);
-        setDashboardData({
-          users,
-          orders,
-          categories
-        });
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        setLoading(false);
-      }
-    };
     fetchDashboardData();
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [users, orders, categories] = await Promise.all([
+        adminDashboardService.getAllUsers(),
+        adminDashboardService.getAllOrders(),
+        adminDashboardService.getCategories()
+      ]);
+      setDashboardData({
+        users,
+        orders,
+        categories
+      });
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      await adminDashboardService.updateOrderStatus(orderId, newStatus);
+      await fetchDashboardData(); // Refresh data after update
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+    }
+  };
+
+  const getFilteredOrders = (type) => {
+    return dashboardData.orders.content.filter(order => {
+      if (type === 'active') {
+        return !['DELIVERED', 'CANCELLED'].includes(order.status);
+      }
+      return ['DELIVERED', 'CANCELLED'].includes(order.status);
+    });
+  };
 
   // Calculate artworks per category for chart
   const categoryStats = dashboardData.categories.map(category => ({
@@ -108,6 +194,37 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
+      {/* Orders Management Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Order Management</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList>
+              <TabsTrigger value="active">Active Orders</TabsTrigger>
+              <TabsTrigger value="completed">Completed Orders</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="active">
+              <OrdersTable 
+                orders={getFilteredOrders('active')} 
+                onStatusChange={handleStatusUpdate}
+                isAdmin={true}
+              />
+            </TabsContent>
+            
+            <TabsContent value="completed">
+              <OrdersTable 
+                orders={getFilteredOrders('completed')} 
+                onStatusChange={handleStatusUpdate}
+                isAdmin={true}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
       {/* Category Stats Chart */}
       <Card>
         <CardHeader>
@@ -170,6 +287,47 @@ const AdminDashboard = () => {
     </div>
   );
 };
+
+const OrdersTable = ({ orders, onStatusChange, isAdmin }) => (
+  <div className="relative overflow-x-auto">
+    <table className="w-full text-sm text-left">
+      <thead className="text-xs uppercase bg-gray-50">
+        <tr>
+          <th className="px-6 py-3">Order ID</th>
+          {/* <th className="px-6 py-3">Customer</th> */}
+          {/* <th className="px-6 py-3">Artwork</th> */}
+          {/* <th className="px-6 py-3">Artist</th> */}
+          <th className="px-6 py-3">Amount</th>
+          <th className="px-6 py-3">Status</th>
+          <th className="px-6 py-3">Address</th>
+          <th className="px-6 py-3">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map((order) => (
+          <tr key={order.id} className="bg-white border-b hover:bg-gray-50">
+            <td className="px-6 py-4">#{order.id}</td>
+            {/* <td className="px-6 py-4">{order.customer.name}</td> */}
+            {/* <td className="px-6 py-4">{order.artwork.title}</td> */}
+            {/* <td className="px-6 py-4">{order.artwork.artist.name}</td> */}
+            <td className="px-6 py-4">${order.totalAmount.toFixed(2)}</td>
+            <td className="px-6 py-4">
+              <OrderStatus 
+                status={order.status} 
+                onStatusChange={onStatusChange}
+                orderId={order.id}
+              />
+            </td>
+            <td className="px-6 py-4 truncate max-w-xs">{order.shippingAddress}</td>
+            <td className="px-6 py-4">
+              {new Date(order.orderDate).toLocaleDateString()}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
 
 
 export default AdminDashboard;

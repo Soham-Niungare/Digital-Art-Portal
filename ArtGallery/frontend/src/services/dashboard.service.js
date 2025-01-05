@@ -28,17 +28,17 @@ dashboardAxios.interceptors.response.use(
     if (error.response?.status === 401 || error.response?.status === 403) {
       console.error('Unauthorized! Redirecting to login...');
       // Optionally, redirect to the login page or refresh token
-      window.location.href = '/login';
+      window.location.href = '/auth/login';
     }
     return Promise.reject(error);
   }
 );
 
-  // Add a new function to get user profile
-  const getCurrentUser = async () => {
-    const response = await dashboardAxios.get('/api/users/profile');
-    return response.data;
-  };
+// Add a new function to get user profile
+const getCurrentUser = async () => {
+  const response = await dashboardAxios.get('/api/users/profile');
+  return response.data;
+};
 
 // Admin Dashboard Services
 export const adminDashboardService = {
@@ -73,11 +73,36 @@ export const artistDashboardService = {
     const response = await dashboardAxios.get('/api/orders/my-sales');
     return response.data;
   },
+  // Calculate sales stats from the orders data
+  getSalesStats: async () => {
+    const orders = await artistDashboardService.getMySales(0, 1000); // Get all orders
+    const stats = {
+      totalSales: 0,
+      pendingOrders: 0,
+      completedOrders: 0
+    };
+
+    orders.content.forEach(order => {
+      if (order.status === 'DELIVERED') {
+        stats.completedOrders++;
+        stats.totalSales += order.totalAmount;
+      } else if (order.status === 'PENDING' || order.status === 'CONFIRMED') {
+        stats.pendingOrders++;
+      }
+    });
+
+    return stats;
+  },
+
+  updateOrderStatus: async (orderId, status) => {
+    const response = await dashboardAxios.put(`/api/orders/${orderId}/status`, { status });
+    return response.data;
+  },
   createArtwork: async (artworkData) => {
     const user = await getCurrentUser();
     const response = await dashboardAxios.post(`/api/artworks?artistId=${user.id}`, artworkData);
     return response.data;
-  },
+  }
 };
 
 // Customer Dashboard Services

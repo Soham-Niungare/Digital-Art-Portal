@@ -17,11 +17,14 @@ public class OrderDTO {
     private Long artworkId;
     private String artworkTitle;
     private String buyerName;
+    private String artistName;
     private OrderStatus status;
     private Double totalAmount;
     private LocalDateTime orderDate;
     private LocalDateTime lastUpdated;
     private String artworkImageUrl;
+    private String shippingAddress;
+    
     
     
     
@@ -86,6 +89,18 @@ public class OrderDTO {
 	}
 	public void setArtworkImageUrl(String artworkImageUrl) {
 		this.artworkImageUrl = artworkImageUrl;
+	}
+	public String getShippingAddress() {
+		return shippingAddress;
+	}
+	public void setShippingAddress(String shippingAddress) {
+		this.shippingAddress = shippingAddress;
+	}
+	public String getArtistName() {
+		return artistName;
+	}
+	public void setArtistName(String artistName) {
+		this.artistName = artistName;
 	}
     
     

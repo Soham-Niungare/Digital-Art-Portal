@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import com.app.dto.OrderDTO;
 import com.app.exception.ForbiddenException;
 import com.app.model.Artist;
 import com.app.model.Artwork;
@@ -45,7 +46,7 @@ public class OrderService {
     @Autowired
     private ArtistRepository artistRepository;
 
-    public Order createOrder(Long userId, Long artworkId, String shippingAddress) {
+    public OrderDTO createOrder(Long userId, Long artworkId, String shippingAddress) {
         Artwork artwork = artworkService.getArtworkById(artworkId);
         
         if (artwork.getStatus() != ArtworkStatus.AVAILABLE) {
@@ -62,10 +63,28 @@ public class OrderService {
         order.setStatus(OrderStatus.PENDING);
         order.setShippingAddress(shippingAddress);
 
-        // Use existing artwork service method
         artworkService.markAsReserved(artworkId);
-
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        
+        return convertToDTO(savedOrder);
+    }
+    
+    private OrderDTO convertToDTO(Order order) {
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setBuyerId(order.getBuyer().getId());
+        String buyerFullName = order.getBuyer().getFirstName() + " " + order.getBuyer().getLastName();
+        dto.setBuyerName(buyerFullName);
+        dto.setArtistName(order.getArtist().getArtistName());
+        dto.setArtworkId(order.getArtwork().getId());
+        dto.setArtworkTitle(order.getArtwork().getTitle());
+        dto.setArtworkImageUrl(order.getArtwork().getImageUrl());
+        dto.setStatus(order.getStatus());
+        dto.setTotalAmount(order.getTotalAmount());
+        dto.setOrderDate(order.getCreatedAt());    // using createdAt since there's no direct orderDate getter
+        dto.setLastUpdated(order.getUpdatedAt());
+        dto.setShippingAddress(order.getShippingAddress());
+        return dto;
     }
     
     public List<String> getAllAddressesForUser(Long userId) {
@@ -90,42 +109,35 @@ public class OrderService {
     }
 
     @Transactional
-    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
-        Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
-
+    public OrderDTO updateOrderStatus(Long orderId, OrderStatus newStatus, String userEmail) {
+        Order order = getOrderWithAccessCheck(orderId, userEmail);
+        
         if (!isValidStatusTransition(order.getStatus(), newStatus)) {
             throw new IllegalStateException("Invalid status transition");
         }
 
         order.setStatus(newStatus);
+        updateArtworkStatus(order.getArtwork(), newStatus);
         
-        // Use existing artwork service methods
-        switch (newStatus) {
-            case PAID -> artworkService.markAsSold(order.getArtwork().getId());
-            case CANCELLED -> {
-                Artwork artwork = order.getArtwork();
-                artworkService.updateArtworkStatus(artwork.getId(), ArtworkStatus.AVAILABLE);
-            }
-            default -> {}
-        }
-
-        return orderRepository.save(order);
+        Order updatedOrder = orderRepository.save(order);
+        return convertToDTO(updatedOrder);
     }
     
 
-    public List<Order> getOrdersByArtist(Long artistId) {
-        Artist artist = artistRepository.findById(artistId)
-            .orElseThrow(() -> new ResourceNotFoundException("Artist not found"));
-        return orderRepository.findByArtist(artist);
+    public Page<OrderDTO> getAllOrders(OrderStatus status, Pageable pageable) {
+        Page<Order> orders = (status != null) 
+            ? orderRepository.findByStatus(status, pageable)
+            : orderRepository.findAll(pageable);
+            
+        return orders.map(this::convertToDTO);
     }
     
-    public Page<Order> getAllOrders(OrderStatus status, Pageable pageable) {
-        if (status != null) {
-            return orderRepository.findByStatus(status, pageable);
-        }
-        return orderRepository.findAll(pageable);
-    }
+//    public Page<Order> getAllOrders(OrderStatus status, Pageable pageable) {
+//        if (status != null) {
+//            return orderRepository.findByStatus(status, pageable);
+//        }
+//        return orderRepository.findAll(pageable);
+//    }
 
     public Order getOrderWithAccessCheck(Long orderId, String userEmail) {
         Order order = orderRepository.findById(orderId)
@@ -146,18 +158,18 @@ public class OrderService {
 
         throw new ForbiddenException("You don't have permission to view this order");
     }
-    public Order updateOrderStatus(Long orderId, OrderStatus newStatus, String userEmail) {
-        Order order = getOrderWithAccessCheck(orderId, userEmail);
-        
-        if (!isValidStatusTransition(order.getStatus(), newStatus)) {
-            throw new IllegalStateException("Invalid status transition");
-        }
-
-        order.setStatus(newStatus);
-        updateArtworkStatus(order.getArtwork(), newStatus);
-        
-        return orderRepository.save(order);
-    }
+//    public Order updateOrderStatus(Long orderId, OrderStatus newStatus, String userEmail) {
+//        Order order = getOrderWithAccessCheck(orderId, userEmail);
+//        
+//        if (!isValidStatusTransition(order.getStatus(), newStatus)) {
+//            throw new IllegalStateException("Invalid status transition");
+//        }
+//
+//        order.setStatus(newStatus);
+//        updateArtworkStatus(order.getArtwork(), newStatus);
+//        
+//        return orderRepository.save(order);
+//    }
     
     private void updateArtworkStatus(Artwork artwork, OrderStatus orderStatus) {
         switch (orderStatus) {
@@ -168,14 +180,16 @@ public class OrderService {
         }
     }
 
-    public Page<Order> getUserOrders(Long userId, Pageable pageable) {
-        return orderRepository.findByBuyerId(userId, pageable);
+    public Page<OrderDTO> getUserOrders(Long userId, Pageable pageable) {
+        return orderRepository.findByBuyerId(userId, pageable)
+                            .map(this::convertToDTO);
     }
 
-    public Page<Order> getArtistSales(Long userId, Pageable pageable) {
+    public Page<OrderDTO> getArtistSales(Long userId, Pageable pageable) {
         User user = userService.getUserById(userId);
         Artist artist = artistRepository.findByUser(user)
             .orElseThrow(() -> new ResourceNotFoundException("Artist not found"));
-        return orderRepository.findByArtist(artist, pageable);
+        return orderRepository.findByArtist(artist, pageable)
+                            .map(this::convertToDTO);
     }
 }

@@ -27,10 +27,11 @@ export const Tabs = ({ children, defaultValue, onChange }) => {
     return (
       <button
         onClick={() => onClick(value)}
-        className={classNames(
-          "px-4 py-2 font-medium text-sm border-b-2",
-          isActive ? "border-blue-500 text-blue-500" : "border-transparent text-gray-500 hover:text-gray-700"
-        )}
+        className={`px-4 py-2 font-medium text-sm border-b-2 ${
+          isActive 
+            ? 'border-blue-500 text-blue-500' 
+            : 'border-transparent text-gray-500 hover:text-gray-700'
+        }`}
       >
         {children}
       </button>

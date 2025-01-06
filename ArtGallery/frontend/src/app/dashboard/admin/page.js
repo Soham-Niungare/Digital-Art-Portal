@@ -14,7 +14,7 @@ import {
   Tabs,
   TabsContent,
   TabsList,
-  TabsTrigger,
+  TabsTrigger
 } from "@/components/ui/tabs";
 import authService from '@/services/auth.service';
 import { adminDashboardService } from '@/services/dashboard.service';
@@ -119,12 +119,16 @@ const AdminDashboard = () => {
 
   const getFilteredOrders = (type) => {
     return dashboardData.orders.content.filter(order => {
-      if (type === 'active') {
-        return !['DELIVERED', 'CANCELLED'].includes(order.status);
+      if (type == 'active') {
+        // Active orders are PENDING, CONFIRMED, PAID, SHIPPED
+        return ['PENDING', 'CONFIRMED', 'PAID', 'SHIPPED'].includes(order.status);
       }
+      // Completed orders are DELIVERED or CANCELLED
       return ['DELIVERED', 'CANCELLED'].includes(order.status);
     });
   };
+  console.log('Active orders:', getFilteredOrders('active'));
+console.log('Completed orders:', getFilteredOrders('completed'));
 
   // Calculate artworks per category for chart
   const categoryStats = dashboardData.categories.map(category => ({
@@ -179,6 +183,7 @@ const AdminDashboard = () => {
             <p className="text-xs text-muted-foreground">
               {dashboardData.orders.content.filter(order => order.status === 'PAID').length} Paid,
               {dashboardData.orders.content.filter(order => order.status === 'PENDING').length} Pending
+              {dashboardData.orders.content.filter(order => order.status === 'DELIVERED').length} Delivered
             </p>
           </CardContent>
         </Card>
@@ -190,6 +195,7 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dashboardData.categories.length}</div>
+            
           </CardContent>
         </Card>
       </div>
@@ -201,11 +207,18 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="active" className="w-full">
-            <TabsList>
-              <TabsTrigger value="active">Active Orders</TabsTrigger>
-              <TabsTrigger value="completed">Completed Orders</TabsTrigger>
-            </TabsList>
-            
+          <TabsList className="flex space-x-4 mb-4 border-b border-gray-200">
+            <TabsTrigger 
+              value="active" 
+              className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+              Active Orders
+            </TabsTrigger>
+            <TabsTrigger 
+              value="completed"
+              className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+              Completed Orders
+            </TabsTrigger>
+          </TabsList>
             <TabsContent value="active">
               <OrdersTable 
                 orders={getFilteredOrders('active')} 
@@ -245,45 +258,6 @@ const AdminDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Recent Orders */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs uppercase bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3">Order ID</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Amount</th>
-                  <th className="px-6 py-3">Date</th>
-                  <th className="px-6 py-3">Address</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dashboardData.orders.content.map((order) => (
-                  <tr key={order.id} className="bg-white border-b">
-                    <td className="px-6 py-4">#{order.id}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        order.status === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">${order.totalAmount}</td>
-                    <td className="px-6 py-4">{new Date(order.orderDate).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 truncate max-w-xs">{order.shippingAddress}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
     </div>
   );
 };
@@ -294,30 +268,43 @@ const OrdersTable = ({ orders, onStatusChange, isAdmin }) => (
       <thead className="text-xs uppercase bg-gray-50">
         <tr>
           <th className="px-6 py-3">Order ID</th>
-          {/* <th className="px-6 py-3">Customer</th> */}
-          {/* <th className="px-6 py-3">Artwork</th> */}
-          {/* <th className="px-6 py-3">Artist</th> */}
+          { <th className="px-6 py-3">Customer</th> }
+          { <th className="px-6 py-3">Artwork</th> }
+          { <th className="px-6 py-3">Artist</th> } 
           <th className="px-6 py-3">Amount</th>
           <th className="px-6 py-3">Status</th>
           <th className="px-6 py-3">Address</th>
           <th className="px-6 py-3">Date</th>
+          {isAdmin && <th className="px-6 py-3">Actions</th>}
         </tr>
       </thead>
       <tbody>
         {orders.map((order) => (
           <tr key={order.id} className="bg-white border-b hover:bg-gray-50">
             <td className="px-6 py-4">#{order.id}</td>
-            {/* <td className="px-6 py-4">{order.customer.name}</td> */}
-            {/* <td className="px-6 py-4">{order.artwork.title}</td> */}
-            {/* <td className="px-6 py-4">{order.artwork.artist.name}</td> */}
-            <td className="px-6 py-4">${order.totalAmount.toFixed(2)}</td>
+            { <td className="px-6 py-4">{order.buyerName}</td> }
+            { <td className="px-6 py-4">{order.artworkTitle}</td> }
+            { <td className="px-6 py-4">{order.artistName}</td> }
             <td className="px-6 py-4">
-              <OrderStatus 
-                status={order.status} 
-                onStatusChange={onStatusChange}
-                orderId={order.id}
-              />
+              {isAdmin ? (
+                <OrderStatus
+                  status={order.status}
+                  onStatusChange={onStatusChange}
+                  orderId={order.id}
+                />
+              ) : (
+                <span
+                  className={`px-2 py-1 rounded text-xs ${
+                    order.status === 'PAID'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
+                  {order.status}
+                </span>
+              )}
             </td>
+            <td className="px-6 py-4">${order.totalAmount.toFixed(2)}</td>
             <td className="px-6 py-4 truncate max-w-xs">{order.shippingAddress}</td>
             <td className="px-6 py-4">
               {new Date(order.orderDate).toLocaleDateString()}

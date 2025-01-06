@@ -3,6 +3,7 @@ package com.app.controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.app.dto.CreateOrderRequest;
+import com.app.dto.OrderDTO;
 import com.app.dto.UpdateOrderStatusRequest;
 import com.app.model.Order;
 import com.app.model.User;
@@ -37,18 +38,18 @@ public class OrderController {
     
     @PostMapping
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    public ResponseEntity<Order> createOrder(@Valid @RequestBody CreateOrderRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody CreateOrderRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUserByEmail(userDetails.getUsername());
-        Order order = orderService.createOrder(user.getId(), request.getArtworkId(), request.getShippingAddress());
+        OrderDTO order = orderService.createOrder(user.getId(), request.getArtworkId(), request.getShippingAddress());
         return ResponseEntity.ok(order);
     }
 
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Page<Order>> getAllOrders(
+    public ResponseEntity<Page<OrderDTO>> getAllOrders(
             @RequestParam(required = false) OrderStatus status,
             @PageableDefault(size = 20) Pageable pageable) {
-        Page<Order> orders = orderService.getAllOrders(status, pageable);
+        Page<OrderDTO> orders = orderService.getAllOrders(status, pageable);
         return ResponseEntity.ok(orders);
     }
 
@@ -61,31 +62,31 @@ public class OrderController {
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'ARTIST')")
-    public ResponseEntity<Order> updateOrderStatus(
+    public ResponseEntity<OrderDTO> updateOrderStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateOrderStatusRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Order order = orderService.updateOrderStatus(id, request.getStatus(), userDetails.getUsername());
+        OrderDTO order = orderService.updateOrderStatus(id, request.getStatus(), userDetails.getUsername());
         return ResponseEntity.ok(order);
     }
 
     @GetMapping("/my-orders")
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    public ResponseEntity<Page<Order>> getUserOrders(
+    public ResponseEntity<Page<OrderDTO>> getUserOrders(
             @AuthenticationPrincipal UserDetails userDetails,
             @PageableDefault(size = 20) Pageable pageable) {
         User user = userService.getUserByEmail(userDetails.getUsername());
-        Page<Order> orders = orderService.getUserOrders(user.getId(), pageable);
+        Page<OrderDTO> orders = orderService.getUserOrders(user.getId(), pageable);
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/my-sales")
     @PreAuthorize("hasAuthority('ARTIST')")
-    public ResponseEntity<Page<Order>> getArtistSales(
+    public ResponseEntity<Page<OrderDTO>> getArtistSales(
             @AuthenticationPrincipal UserDetails userDetails,
             @PageableDefault(size = 20) Pageable pageable) {
         User user = userService.getUserByEmail(userDetails.getUsername());
-        Page<Order> sales = orderService.getArtistSales(user.getId(), pageable);
+        Page<OrderDTO> sales = orderService.getArtistSales(user.getId(), pageable);
         return ResponseEntity.ok(sales);
     }
 }

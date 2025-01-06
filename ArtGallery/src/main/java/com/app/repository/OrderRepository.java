@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.app.dto.OrderDTO;
 import com.app.model.Artist;
 import com.app.model.Artwork;
 import com.app.model.Order;

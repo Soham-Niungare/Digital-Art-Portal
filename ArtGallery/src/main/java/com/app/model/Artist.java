@@ -22,7 +22,7 @@ public class Artist {
     private Long id;
     
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
     private User user;
     
     private String artistName;    

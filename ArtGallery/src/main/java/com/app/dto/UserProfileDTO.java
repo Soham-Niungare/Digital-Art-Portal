@@ -13,9 +13,10 @@ public class UserProfileDTO {
     private String profilePicture;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long artistId;
     
 	public UserProfileDTO(Long id, String email, String firstName, String lastName, String role, String profilePicture,
-			LocalDateTime createdAt, LocalDateTime updatedAt) {
+			LocalDateTime createdAt, LocalDateTime updatedAt, Long artistId) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -25,6 +26,7 @@ public class UserProfileDTO {
 		this.profilePicture = profilePicture;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.artistId = artistId;
 	}
 
 //	public UserProfileDTO(Long id2, String email2, String firstName2, String lastName2, String string,
@@ -106,9 +108,18 @@ public class UserProfileDTO {
             user.getRole().toString(),
             user.getProfilePicture(),
             user.getCreatedAt(),
-            user.getUpdatedAt()
+            user.getUpdatedAt(),
+            user.getArtist() != null ? user.getArtist().getId() : null 
         );
     }
+
+	public Long getArtistId() {
+		return artistId;
+	}
+
+	public void setArtistId(Long artistId) {
+		this.artistId = artistId;
+	}
     
     
 }

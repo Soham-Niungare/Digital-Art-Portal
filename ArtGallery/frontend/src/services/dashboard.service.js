@@ -58,6 +58,10 @@ export const adminDashboardService = {
     const response = await dashboardAxios.patch(`/api/orders/${orderId}`, { status });
     return response.data;
   },
+  createCategory: async (categoryData) => {
+    const response = await dashboardAxios.post('/api/categories', categoryData);
+    return response.data;
+  }
 };
 
 // Artist Dashboard Services
@@ -66,7 +70,7 @@ export const artistDashboardService = {
   getCurrentUser,
   getArtworks: async () => {
     const user = await getCurrentUser();
-    const response = await dashboardAxios.get(`/api/artists/${user.id}/artworks`);
+    const response = await dashboardAxios.get(`/api/artists/${user.artistId}/artworks`);
     return response.data;
   },
   getMySales: async () => {

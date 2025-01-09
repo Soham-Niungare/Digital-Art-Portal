@@ -90,11 +90,11 @@ const OrdersTable = ({ orders, onStatusChange }) => (
             <td className="px-6 py-4">#{order.id}</td>
             <td className="px-6 py-4">
               <div className="flex flex-col">
-                {/* <span className="font-medium">{order.artwork.title}</span> */}
+                <span className="font-medium">{order.artworkTitle}</span>
                 <span className="text-xs text-gray-500">${order.totalAmount}</span>
               </div>
             </td>
-            {/* <td className="px-6 py-4">{order.customer.name}</td> */}
+            <td className="px-6 py-4">{order.buyerName}</td>
             <td className="px-6 py-4">${order.totalAmount}</td>
             <td className="px-6 py-4">
               <OrderStatus 

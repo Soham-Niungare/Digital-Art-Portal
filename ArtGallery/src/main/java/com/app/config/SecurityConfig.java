@@ -50,6 +50,7 @@ public class SecurityConfig {
             .cors().and()  // Enable CORS for all endpoints
             .authorizeHttpRequests(auth -> auth
             	.requestMatchers(HttpMethod.GET,"/api/artworks/**").permitAll()
+            	.requestMatchers(HttpMethod.GET,"/api/categories/**").permitAll()
             	.requestMatchers(HttpMethod.GET,"/images/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/users/register").permitAll()

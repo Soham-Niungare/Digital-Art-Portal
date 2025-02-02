@@ -94,9 +94,9 @@ Authorization: Bearer your.jwt.token
 - Order status transitions with validations
 
 ## Technologies Used
-- **Backend:** Node.js, Express.js
+- **Backend:** Spring Boot
 - **Frontend:** Next.js, React, Redux Toolkit
-- **Database:** MongoDB
+- **Database:** MySQL
 - **Authentication:** JWT
 
 ## Getting Started
